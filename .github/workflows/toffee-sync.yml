@@ -1,0 +1,32 @@
+name: Toffee Channel Sync
+
+on:
+  schedule:
+    - cron: '*/20 * * * *'  # every 20 min
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run script
+        run: python toffee_fetcher.py
+
+      - name: Commit updated files
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'actions@github.com'
+          git add ns.m3u channels.json ott.m3u cookie.txt
+          git commit -m "🔄 Auto update Toffee data"
+          git push
